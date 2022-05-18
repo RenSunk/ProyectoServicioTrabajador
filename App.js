@@ -1,20 +1,19 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-
-export default function App() {
+import React from "react"
+import Principal from "./Page/Principal"
+import { DataContext } from "./Context/Context"
+import { TrabajoContext } from "./Context/TrabajoContext"
+import { UsuarioContext } from "./Context/UsuarioContext"
+const App = () => {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+    <UsuarioContext>
+      <TrabajoContext>
+        <DataContext>
+          <Principal />
+        </DataContext>
+      </TrabajoContext>
+    </UsuarioContext>
+
+  )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App
