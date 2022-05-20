@@ -6,7 +6,6 @@ import {
   Image,
   TouchableOpacity,
   SnapshotViewIOS,
-  Modal,
   TextInput,
   FlatList,
 } from "react-native";
@@ -24,6 +23,8 @@ import UsuarioContext from "../Context/UsuarioContext";
 import PanelServicio from "../Componente/PanelServicio";
 
 import Agregar from "../assets/Agregar.png";
+
+import ModalAgregar from "../Componente/ModalAgregar"
 const peticion = async () => {
   return;
 };
@@ -44,7 +45,12 @@ const Inicio = ({ navigation }) => {
       Firebase.database()
         .ref("usuario/" + usuario.id + "/Servicios Solicitado/ids")
         .on("value", function (snapshot) {
-          setarray(snapshot.val())
+
+          if(snapshot.val() != null){
+            setarray(snapshot.val())
+          }
+         
+
           let json = {};
           setsSolicitados([]);
           setloading(true);
@@ -84,7 +90,9 @@ const Inicio = ({ navigation }) => {
     let id =
       usuario.id + "()" + Object.values(sSolicitados).length + "()" + codigo;
       datos["id"] = id
+
     let arra = array
+
     arra.push(id)
     setarray(arra)
 
@@ -101,80 +109,21 @@ const Inicio = ({ navigation }) => {
             })
           })
       });
-
-      
   };
 
   return (
     <View style={{ backgroundColor: "#18191A", flex: 1 }}>
-      <Modal
-        animationType="none"
-        transparent={true}
+      
+      <ModalAgregar
+
         visible={visible}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <View style={{ width: 200 }}>
-              <View style={{ padding: 10 }}>
-                <Text style={styles.textos}>Servicio a solicitar</Text>
-                <TextInput
-                  style={{
-                    borderBottomColor: "#767676",
-                    borderBottomWidth: 2,
-                    color: "white",
-                  }}
-                  keyboardType={"default"}
-                  onChangeText={(value) => handleChangeText("trabajo", value)}
-                />
-              </View>
+        setvisible={setvisible}
+        handleChangeText={handleChangeText}
+        enviar={enviar}
 
-              <View style={{ padding: 10 }}>
-                <Text style={styles.textos}>Describa el servicio</Text>
-                <TextInput
-                  style={{
-                    borderBottomColor: "#767676",
-                    borderBottomWidth: 2,
-                    color: "white",
-                  }}
-                  onChangeText={(value) =>
-                    handleChangeText("descripcion", value)
-                  }
-                  keyboardType={"default"}
-                />
-              </View>
+      />
 
-              <TouchableOpacity
-                onPress={() => enviar()}
-                style={{
-                  borderWidth: 2,
-                  borderColor: "#767676",
-                  borderRadius: 5,
-                  padding: 10,
-                  margin: 10,
-                }}
-              >
-                <Text style={styles.textos}>Enviar</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => setvisible(false)}
-                style={{
-                  borderWidth: 2,
-                  borderColor: "#767676",
-                  borderRadius: 5,
-                  padding: 10,
-                  margin: 10,
-                }}
-              >
-                <Text style={styles.textos}>Salir</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      
 
       <TouchableOpacity style={styles.boton}
       onPress={()=> setvisible(true)}>
