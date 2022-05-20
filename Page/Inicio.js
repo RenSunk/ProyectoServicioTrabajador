@@ -117,7 +117,7 @@ const Inicio = ({ navigation }) => {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <View>
+            <View style={{ width: 200 }}>
               <View style={{ padding: 10 }}>
                 <Text style={styles.textos}>Servicio a solicitar</Text>
                 <TextInput
@@ -184,7 +184,7 @@ const Inicio = ({ navigation }) => {
 
       <View style={styles.panel}>
         <Text style={styles.textos}>Servicios Solicitados</Text>
-        <br />
+       
 
         {loading ? (
           <Text style={styles.textos}> Cargando... </Text>
@@ -233,6 +233,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     flexDirection: "row",
     alignItems: "center",
+    marginTop:20
   },
   centeredView: {
     flex: 1,
