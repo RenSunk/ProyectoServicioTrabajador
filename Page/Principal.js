@@ -14,8 +14,10 @@ import Tipo from "./ImagenYTipo"
 import Trabajos from "./Trabajos"
 import EditarTrabajador from "./EditarTrabajador"
 import ComentariosTrabajador from "./ComentariosTrabajador"
+import ServicioPendiente from "./ServicioPendiente"
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import servicioFinalizado from "./servicioFinalizado"
 
 const Stack = createStackNavigator();
 
@@ -80,6 +82,16 @@ function MyStack() {
       <Stack.Screen
         name="Inicio"
         component={Inicio}
+        options={{ cardStyleInterpolator: forFade }}
+      />
+      <Stack.Screen
+        name="Pendiente"
+        component={ServicioPendiente}
+        options={{ cardStyleInterpolator: forFade }}
+      />
+      <Stack.Screen
+        name="Finalizado"
+        component={servicioFinalizado}
         options={{ cardStyleInterpolator: forFade }}
       />
       <Stack.Screen
