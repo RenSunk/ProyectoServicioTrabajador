@@ -1,11 +1,12 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, TextInput } from "react-native";
 import { useContext, useState, useEffect } from "react";
-
+import UsuarioContext from "../Context/UsuarioContext";
 import Firebase from "../Database/Firebase";
 import TrabajoContext from "../Context/TrabajoContext";
 import Estrellas from "../Componente/Estrellas";
 
 const ServicioPendiente = ({ navigation }) => {
+  const { usuario } = useContext(UsuarioContext);
   const { trabajo, settrabajador } = useContext(TrabajoContext);
   const [data, setadate] = useState({});
   const [trabajador, setTrabajador] = useState();
@@ -18,37 +19,47 @@ const ServicioPendiente = ({ navigation }) => {
         setadate(snapshot.val());
         console.log(snapshot.val());
         Firebase.database()
-          .ref("usuario/" + snapshot.val().trabajador)
+          .ref( "usuario/" + snapshot.val().cliente )
           .on("value", function (sna) {
             setloading(true);
             console.log(sna.val());
             setTrabajador(sna.val());
-            settrabajador(sna.val())
+            settrabajador(sna.val());
             setloading(false);
           });
       });
   }, []);
 
-  const Aceptar = () =>{
+  const Aceptar = () => {
+    let array = data;
+    array.estado = "pendiente";
+    array.trabajador = usuario.id
+    setadate(array);
     Firebase.database()
-      .ref("Servicios Solicitados/" + trabajo + "/estado").set("Finalizado").then(()=>{
-        navigation.navigate('Inicio')
-      })
-  }
+      .ref("Servicios Solicitados/" + trabajo)
+      .set(data)
+      .then(() => {});
+  };
 
-  const Rechazar = () =>{
+  const Rechazar = () => {
     Firebase.database()
-      .ref("Servicios Solicitados/" + trabajo + "/estado").set("buscando").then(()=>{
-        navigation.navigate('Inicio')
-      })
-  }
+      .ref("Servicios Solicitados/" + trabajo + "/estado")
+      .set("buscando")
+      .then(() => {
+        navigation.navigate("Inicio");
+      });
+  };
 
-  const abrirchat = () =>{
-    navigation.navigate('Chat_Trabajador')
-  }
+  const abrirchat = () => {
+    navigation.navigate("Chat_Trabajador");
+  };
+
+  const handleChangeText = (name, valor) => {
+    setadate({ ...data, [name]: valor });
+  };
 
   return (
-    <View style={{ flex:1, backgroundColor: "#18191A" }}>
+    <View style={{ flex: 1, backgroundColor: "#18191A" }}>
       <Text> HOLA </Text>
       <Text> HOLA </Text>
       {loading ? (
@@ -64,12 +75,12 @@ const ServicioPendiente = ({ navigation }) => {
               margin: 10,
             }}
           >
-            <Text style={{color:"#fff"}} > {data.trabajo} </Text>
-            <Text style={{color:"#fff"}}> {data.estado} </Text>
-            <Text style={{color:"#fff"}}> {data.descripcion} </Text>
+            <Text style={{ color: "#fff" }}> {data.trabajo} </Text>
+            <Text style={{ color: "#fff" }}> {data.estado} </Text>
+            <Text style={{ color: "#fff" }}> {data.descripcion} </Text>
           </View>
 
-          {trabajador != undefined ? (
+          {/*trabajador != undefined ? (
             <View
               style={{
                 borderColor: "#767676",
@@ -112,7 +123,8 @@ const ServicioPendiente = ({ navigation }) => {
             </View>
           ) : (
             <View></View>
-          )}
+          )*/}
+
           <View
             style={{
               borderColor: "#767676",
@@ -120,12 +132,21 @@ const ServicioPendiente = ({ navigation }) => {
               borderRadius: 10,
               padding: 10,
               margin: 10,
-              flexDirection:"row",
-              justifyContent:"space-around"
+              flexDirection: "row",
+              justifyContent: "space-around",
             }}
           >
-            <Text style={{ color:"#fff" }}> Precio: </Text>  
-            <Text style={{ color:"#fff" }}> ${data.precio} </Text>
+            <Text style={{ color: "#fff" }}> Precio: </Text>
+            <TextInput
+              style={{
+                borderBottomColor: "#767676",
+                borderBottomWidth: 2,
+                color: "white",
+              }}
+              value={data.precio}
+              onChangeText={(value) => handleChangeText("precio", value)}
+              keyboardType={"default"}
+            />
           </View>
 
           <View
@@ -135,8 +156,9 @@ const ServicioPendiente = ({ navigation }) => {
               margin: 10,
             }}
           >
-            <TouchableOpacity
-            onPress={()=>Aceptar()}
+            {
+             ( data.estado == "buscando") ? (<TouchableOpacity
+              onPress={() => Aceptar()}
               style={{
                 borderWidth: 2,
                 borderColor: "#767676",
@@ -145,31 +167,26 @@ const ServicioPendiente = ({ navigation }) => {
                 paddingVertical: 10,
               }}
             >
-              <Text style={{color:"#00FF0A"}}>Aceptar</Text>
-            </TouchableOpacity>
+              <Text style={{ color: "#00FF0A" }}>Aceptar</Text>
+            </TouchableOpacity> ):( <View></View>)
 
-            <TouchableOpacity
-            onPress={()=> Rechazar()}
-              style={{
-                borderWidth: 2,
-                borderColor: "#767676",
-                borderRadius: 10,
-                paddingHorizontal: 30,
-                paddingVertical: 10,
-              }}
-            >
-              <Text style={{color:"red"}}>Rechazar</Text>
-            </TouchableOpacity>
+            }
+
           </View>
-          <TouchableOpacity 
-          onPress={ ()=> abrirchat() }
-          style={{ borderWidth: 2,
-                borderColor: "#767676",
-                borderRadius: 10,
-                paddingHorizontal: 30,
-                paddingVertical: 10,
-                margin:10 }}>
-              <Text style={{textAlign:"center", color:"#fff"}}>Abrir Chat para conversar con el trabajador</Text>
+          <TouchableOpacity
+            onPress={() => abrirchat()}
+            style={{
+              borderWidth: 2,
+              borderColor: "#767676",
+              borderRadius: 10,
+              paddingHorizontal: 30,
+              paddingVertical: 10,
+              margin: 10,
+            }}
+          >
+            <Text style={{ textAlign: "center", color: "#fff" }}>
+              Abrir Chat para conversar con el cliente
+            </Text>
           </TouchableOpacity>
         </View>
       )}

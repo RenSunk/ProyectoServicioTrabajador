@@ -36,40 +36,9 @@ const Inicio = ({ navigation }) => {
   useEffect(() => {
     if (isFocused && Object.keys(usuario).length != 0) {
       setdata("Inicio");
-      Firebase.database()
-        .ref("usuario/" + usuario.id + "/Servicios Solicitado/ids")
-        .on("value", function (snapshot) {
-          if (snapshot.val() != null) {
-            setarray(snapshot.val());
-          }
-          let json = {};
-          setsSolicitados([]);
-          setloading(true);
-          let i = 0;
-          if (snapshot.val() != null) {
-            snapshot.val().map((val, index) => {
-              Firebase.database()
-                .ref("Servicios Solicitados/" + val)
-                .on("value", function (sna) {
-                  setloading(true);
-                  json[sna.val().id] = sna.val();
-                  i++;
-                  if (i == snapshot.val().length) {
-                    setloading(false);
-                  }
-
-                  if (sna.val().estado == "Finalizado") {
-                    delete json[sna.val().id];
-                  }
-
-                  setsSolicitados(json);
-                  setloading(false);
-                });
-            });
-          } else {
-            setloading(false);
-          }
-        });
+      Firebase.database().ref("Servicios Solicitados").on("value", function (snapshot) {
+        setsSolicitados( snapshot.val() )
+      });
     }
   }, [usuario, isFocused]);
 
@@ -113,43 +82,6 @@ const Inicio = ({ navigation }) => {
 
   return (
     <View style={{ backgroundColor: "#18191A", flex: 1 }}>
-      <ModalAgregar
-        visible={visible}
-        setvisible={setvisible}
-        handleChangeText={handleChangeText}
-        enviar={enviar}
-      />
-
-      <Modal
-        animationType="none"
-        transparent={true}
-        visible={abrir}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-        }}
-      >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-            <View>
-              <Text
-                style={{ color: "white", margin: 20 }}
-                allowFontScaling={false}
-              >
-                Estamos buscando un trabajador para tu servicio...
-              </Text>
-              <TouchableOpacity style={{  borderWidth:2 ,borderColor:"#767676", padding:10, borderRadius:10 }}
-              onPress={()=> setabrir(false)}>
-                <Text style={styles.textos}> Salir </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      <TouchableOpacity style={styles.boton} onPress={() => setvisible(true)}>
-        <Text style={styles.textos}> Solicitar Servicio </Text>
-        <Image source={Agregar} style={{ width: 30, height: 30, margin: 10 }} />
-      </TouchableOpacity>
 
       <View style={styles.panel}>
         <Text style={styles.textos}>Servicios Solicitados</Text>
@@ -158,22 +90,35 @@ const Inicio = ({ navigation }) => {
           <Text style={styles.textos}> Cargando... </Text>
         ) : (
           Object.values(sSolicitados).map((val, index) => {
-            return (
-              <TouchableOpacity
-                key={index}
-                onPress={() =>
-                  val.estado == "buscando"
-                    ? setabrir(true)
-                    : Servicio(val.id) 
-                }
-              >
-                <PanelServicio
-                  titulo={val != undefined ? val.trabajo : ""}
-                  descripcion={val != undefined ? val.descripcion : ""}
-                  estado={val.estado}
-                />
-              </TouchableOpacity>
-            );
+
+            if(val.estado == "buscando" ){
+              return (
+                <TouchableOpacity
+                  key={index}
+                  onPress={ () => Servicio(val.id) }
+                >
+                  <PanelServicio
+                    titulo={val != undefined ? val.trabajo : ""}
+                    descripcion={val != undefined ? val.descripcion : ""}
+                    estado={val.estado}
+                  />
+                </TouchableOpacity>
+              );
+            }else if(val.estado == "pendiente" && val.trabajador == usuario.id){
+              return (
+                <TouchableOpacity
+                  key={index}
+                  onPress={ () => Servicio(val.id) }
+                >
+                  <PanelServicio
+                    titulo={val != undefined ? val.trabajo : ""}
+                    descripcion={val != undefined ? val.descripcion : ""}
+                    estado={val.estado}
+                  />
+                </TouchableOpacity>
+              );
+            }
+
           })
         )}
         {Object.values(sSolicitados).length <= 0 && loading ? (
